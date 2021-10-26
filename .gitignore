@@ -37,3 +37,9 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# Don't include output files
+out/*.svg
+
+# Don't include input files
+data/
