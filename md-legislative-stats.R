@@ -13,12 +13,16 @@ round2 = function(x, n) {
   z*posneg
 }
 
+# https://data.census.gov/cedsci/table?g=0400000US24%246200000&y=2020&tid=DECENNIALPL2020.P1
 race = read_csv("data/MD-RACE.csv")
 
+# https://data.census.gov/cedsci/table?g=0400000US24%246200000&y=2020&tid=DECENNIALPL2020.P2
 hisp = read_csv("data/MD-HISPANIC.csv")
 
+# https://data.census.gov/cedsci/table?g=0400000US24%246200000&y=2020&tid=DECENNIALPL2020.P3
 adult = read_csv("data/MD-OVER18.csv")
 
+# https://elections.maryland.gov/press_room/2020_stats/Eligible%20Active%20Voters%20by%20Legislative%20-%20PG20.xlsx
 voters = read_excel("data/Eligible Active Voters by Legislative - PG20.xlsx")
 voters = voters %>% slice(6:nrow(.))
 names(voters) = voters %>% slice(1) %>% unlist()
@@ -27,20 +31,21 @@ voters = voters %>% slice(2:nrow(.))
 
 
 
-district = c("district 1A,")
-district2 = c("01A")
+district = c("district 31B,")
+district2 = c("31B")
 pattern = paste(district, collapse="|")
 pattern2 = paste(district2, collapse="|")
 voters = voters %>% dplyr::filter(grepl(pattern2,district))
 
-names(race) = race %>% slice(1) %>% unlist()
+#names(race) = race %>% slice(1) %>% unlist()
 race = race %>% janitor::clean_names()
-race_df = race %>% dplyr::filter(grepl(pattern,geographic_area_name))
+race = race %>% dplyr::filter(!is.na(total))
+race_df = race %>% dplyr::filter(grepl(pattern,label_grouping))
 
 # check filters
 cat("Filter 1\n")
-race %>% dplyr::filter(grepl(pattern,geographic_area_name)) %>%
-  select(geographic_area_name)
+race %>% dplyr::filter(grepl(pattern,label_grouping)) %>%
+  select(label_grouping)
 cat("Filter 2\n")
 voters %>% dplyr::filter(grepl(pattern2,district)) %>%
   select(district)
@@ -63,13 +68,13 @@ total_dem/total_reg -> ratio_dem;ratio_dem
 
 total_other/total_reg -> ratio_other;ratio_other
 
-names(adult) = adult %>% slice(1) %>% unlist()
 adult = adult %>% janitor::clean_names()
-adult_df = adult %>% dplyr::filter(grepl(pattern,geographic_area_name))
+adult = adult %>% dplyr::filter(!is.na(total))
+adult_df = adult %>% dplyr::filter(grepl(pattern,label_grouping))
 
-names(hisp) = hisp %>% slice(1) %>% unlist()
 hisp = hisp %>% janitor::clean_names()
-hisp_df = hisp %>% dplyr::filter(grepl(pattern,geographic_area_name))
+hisp = hisp %>% dplyr::filter(!is.na(total))
+hisp_df = hisp %>% dplyr::filter(grepl(pattern,label_grouping))
 
 # total pop
 race_df %>% mutate(total=as.numeric(total)) %>% summarise(sum=sum(total)) -> total_pop;total_pop
